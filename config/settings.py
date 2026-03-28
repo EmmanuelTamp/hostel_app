@@ -37,6 +37,8 @@ REST_FRAMEWORK = {
     ),
 }
 
+CORS_ALLOW_ALL_ORIGINS = True
+
 INSTALLED_APPS = [
     # Django apps...
     "django.contrib.admin",
@@ -55,6 +57,8 @@ INSTALLED_APPS = [
     "hostels",
     "bookings",
     "payments",
+    "reviews",
+    "auditlogs",
 ]
 
 MIDDLEWARE = [
@@ -108,6 +112,16 @@ USE_I18N = True
 USE_TZ = True
 
 PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "")
-PAYSTACK_CALLBACK_URL = os.getenv("PAYSTACK_CALLBACK_URL", "")
+
+PAYSTACK_CALLBACK_URL = os.getenv(
+    "PAYSTACK_CALLBACK_URL",
+    "http://127.0.0.1:8000/api/payments/paystack/callback/",
+)
+
+FRONTEND_PAYMENT_SUCCESS_URL = os.getenv(
+    "FRONTEND_PAYMENT_SUCCESS_URL",
+    "http://127.0.0.1:5173/payment/success",
+)
+
 
 STATIC_URL = "static/"

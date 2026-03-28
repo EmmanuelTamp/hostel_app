@@ -22,3 +22,16 @@ staticfiles/
 
 # Logs
 *.log
+
+
+venv/
+.env
+__pycache__/
+*.pyc
+db.sqlite3
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+staticfiles/
+media/

@@ -1,5 +1,20 @@
 from rest_framework import serializers
-from .models import Hostel, RoomType, HostelImage
+from .models import Hostel, RoomType, HostelImage, Location
+
+
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = (
+            "id",
+            "name",
+            "city",
+            "region",
+            "university_name",
+            "campus_name",
+            "description",
+            "is_active",
+        )
 
 
 class RoomTypeSerializer(serializers.ModelSerializer):
@@ -7,7 +22,18 @@ class RoomTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RoomType
-        fields = ("id", "name", "booking_mode", "price", "capacity", "booked", "available", "condition")
+        fields = (
+            "id",
+            "name",
+            "booking_mode",
+            "price",
+            "capacity",
+            "booked",
+            "held",
+            "available",
+            "condition",
+            "is_active",
+        )
 
 
 class HostelImageSerializer(serializers.ModelSerializer):
@@ -27,13 +53,29 @@ class HostelImageSerializer(serializers.ModelSerializer):
 
 
 class HostelListSerializer(serializers.ModelSerializer):
+    location = LocationSerializer(read_only=True)
+    min_price = serializers.SerializerMethodField()
+
     class Meta:
         model = Hostel
-        fields = ("id", "name", "location_area", "is_active")
+        fields = (
+            "id",
+            "name",
+            "location_area",
+            "location",
+            "is_active",
+            "min_price",
+        )
+
+    def get_min_price(self, obj):
+        active_rooms = obj.room_types.filter(is_active=True).order_by("price")
+        first_room = active_rooms.first()
+        return first_room.price if first_room else None
 
 
 class HostelDetailSerializer(serializers.ModelSerializer):
-    room_types = RoomTypeSerializer(many=True, read_only=True)
+    location = LocationSerializer(read_only=True)
+    room_types = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
     caretaker_contact = serializers.SerializerMethodField()
     map_location = serializers.SerializerMethodField()
@@ -44,6 +86,7 @@ class HostelDetailSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "location_area",
+            "location",
             "address",
             "gps_lat",
             "gps_lng",
@@ -55,16 +98,31 @@ class HostelDetailSerializer(serializers.ModelSerializer):
             "caretaker_contact",
             "images",
             "room_types",
+            "is_active",
         )
+
+    def get_room_types(self, obj):
+        room_types = obj.room_types.filter(is_active=True)
+        return RoomTypeSerializer(room_types, many=True, context=self.context).data
 
     def get_images(self, obj):
         images = obj.images.filter(is_active=True)
         return HostelImageSerializer(images, many=True, context=self.context).data
 
     def get_caretaker_contact(self, obj):
+        """
+        For safety and business control, caretaker contact should only be exposed
+        after confirmed payment in the actual view logic. This serializer still
+        supports returning the data when the view explicitly allows it.
+        """
+        show_contact = self.context.get("show_caretaker_contact", False)
+        if not show_contact:
+            return None
+
         caretaker = obj.caretaker
         if not caretaker:
             return None
+
         return {
             "id": caretaker.id,
             "name": caretaker.get_full_name() or caretaker.username,
@@ -82,12 +140,21 @@ class HostelDetailSerializer(serializers.ModelSerializer):
 
 
 class AdminHostelSerializer(serializers.ModelSerializer):
+    location = serializers.PrimaryKeyRelatedField(
+        queryset=Location.objects.filter(is_active=True),
+        required=False,
+        allow_null=True,
+    )
+    location_detail = LocationSerializer(source="location", read_only=True)
+
     class Meta:
         model = Hostel
         fields = (
             "id",
             "name",
             "location_area",
+            "location",
+            "location_detail",
             "address",
             "gps_lat",
             "gps_lng",
@@ -133,9 +200,13 @@ class AdminRoomTypeSerializer(serializers.ModelSerializer):
         held = attrs.get("held", getattr(self.instance, "held", 0))
 
         if booking_mode == RoomType.BookingMode.WHOLE_ROOM and capacity != 1:
-            raise serializers.ValidationError({"capacity": "Capacity must be 1 when booking mode is WHOLE_ROOM."})
+            raise serializers.ValidationError(
+                {"capacity": "Capacity must be 1 when booking mode is WHOLE_ROOM."}
+            )
 
         if booked + held > capacity:
-            raise serializers.ValidationError({"held": "Booked plus held cannot be greater than capacity."})
+            raise serializers.ValidationError(
+                {"held": "Booked plus held cannot be greater than capacity."}
+            )
 
         return attrs

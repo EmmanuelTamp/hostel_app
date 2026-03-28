@@ -1,0 +1,178 @@
+/* App-level layout helpers only.
+   Keep this file very small.
+   Global design tokens and reusable UI styles belong in index.css. */
+
+.app-root {
+  min-height: 100vh;
+}
+
+.app-page {
+  min-height: 100vh;
+  width: 100%;
+}
+
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+  background: var(--bg);
+}
+
+@media (min-width: 1024px) {
+  .auth-shell {
+    grid-template-columns: 1.05fr 0.95fr;
+  }
+}
+
+.auth-hero {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .auth-hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    background:
+      radial-gradient(circle at top left, rgba(196, 154, 50, 0.14), transparent 32%),
+      radial-gradient(circle at bottom right, rgba(15, 59, 54, 0.16), transparent 36%),
+      linear-gradient(180deg, #eef2eb 0%, #e7ece5 100%);
+  }
+}
+
+.auth-hero-panel {
+  width: 100%;
+  max-width: 540px;
+  min-height: 640px;
+  border: 1px solid var(--border);
+  border-radius: 32px;
+  background: rgba(252, 252, 248, 0.82);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(8px);
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.auth-form-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .auth-form-side {
+    padding: 2rem;
+  }
+}
+
+.auth-form-card {
+  width: 100%;
+  max-width: 560px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 32px;
+  box-shadow: var(--shadow-soft);
+  padding: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .auth-form-card {
+    padding: 2.25rem;
+  }
+}
+
+.dashboard-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+  background: var(--bg);
+}
+
+@media (min-width: 1024px) {
+  .dashboard-layout {
+    grid-template-columns: 280px 1fr;
+  }
+}
+
+.dashboard-sidebar {
+  min-height: 100%;
+}
+
+.dashboard-main {
+  min-width: 0;
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .dashboard-main {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .dashboard-main {
+    padding: 2rem;
+  }
+}
+
+.content-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .cards-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cards-grid-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.split-panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .split-panel {
+    grid-template-columns: minmax(0, 1.1fr) minmax(320px, 420px);
+  }
+}
